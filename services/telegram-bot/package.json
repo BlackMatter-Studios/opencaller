@@ -1,0 +1,13 @@
+{
+  "name": "opencaller-telegram-bot",
+  "version": "1.0.0",
+  "description": "Telegram Verification Bot gateway for OpenCaller",
+  "type": "module",
+  "main": "src/index.mjs",
+  "scripts": {
+    "start": "node src/index.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

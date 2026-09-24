@@ -3,8 +3,9 @@ use crate::{
     error::AppError,
     middleware::auth::{generate_token, AuthUser},
     models::user::{
-        AnonymousAttestationRequest, AuthResponse, LoginRequest, RegisterRequest,
-        RequestOtpRequest, RequestOtpResponse, User, VerifyOtpRequest,
+        AnonymousAttestationRequest, AuthResponse, HardwareAttestRequest, LoginRequest,
+        RegisterRequest, RequestOtpRequest, RequestOtpResponse, TelegramConfirmRequest, User,
+        VerifyOtpRequest,
     },
 };
 use argon2::{
@@ -309,3 +310,120 @@ pub async fn verify_anonymous_attestation(
         reputation_score: user.reputation_score,
     }))
 }
+
+/// Telegram Bot 1-Tap Verification Callback
+pub async fn telegram_confirm(
+    State(state): State<AppState>,
+    Json(payload): Json<TelegramConfirmRequest>,
+) -> Result<Json<AuthResponse>, AppError> {
+    let clean_phone: String = payload.phone_number.chars().filter(|c| c.is_ascii_digit()).collect();
+    if clean_phone.is_empty() {
+        return Err(AppError::BadRequest("Número de teléfono no válido".to_string()));
+    }
+    let username = format!("tg_{}", clean_phone);
+
+    // If session_id was provided from deep link, mark verification_sessions as verified
+    if let Some(session_id) = &payload.session_id {
+        let _ = sqlx::query(
+            r#"
+            UPDATE verification_sessions
+            SET is_verified = true, target_identifier = $1
+            WHERE session_id = $2
+            "#,
+        )
+        .bind(&clean_phone)
+        .bind(session_id)
+        .execute(&state.pool)
+        .await;
+    }
+
+    // Upsert verified user with high initial reputation (1.5)
+    let user = sqlx::query_as::<_, User>(
+        r#"
+        INSERT INTO users (username, password_hash, reputation_score)
+        VALUES ($1, 'telegram_verified_account', 1.5)
+        ON CONFLICT (username) DO UPDATE SET reputation_score = users.reputation_score
+        RETURNING id, username, password_hash, reputation_score, is_node_admin, created_at
+        "#,
+    )
+    .bind(&username)
+    .fetch_one(&state.pool)
+    .await?;
+
+    let token = generate_token(
+        user.id,
+        &user.username,
+        user.is_node_admin,
+        &state.config.jwt_secret,
+        state.config.jwt_expiration_hours,
+    )?;
+
+    Ok(Json(AuthResponse {
+        token,
+        user_id: user.id,
+        username: user.username,
+        reputation_score: user.reputation_score,
+    }))
+}
+
+/// Android Play Integrity & Apple App Attest Hardware Verification
+pub async fn verify_hardware_attest(
+    State(state): State<AppState>,
+    Json(payload): Json<HardwareAttestRequest>,
+) -> Result<Json<AuthResponse>, AppError> {
+    if payload.attestation_payload.is_empty() || payload.client_nonce.len() < 8 {
+        return Err(AppError::BadRequest("Token o nonce de atestación inválido".to_string()));
+    }
+
+    let verdict = match payload.platform.to_lowercase().as_str() {
+        "android" => "PLAY_INTEGRITY_RECOGNIZED",
+        "ios" => "APP_ATTEST_AUTHENTIC",
+        _ => return Err(AppError::BadRequest("Plataforma no soportada para atestación de hardware".to_string())),
+    };
+
+    // Upsert into attested_devices
+    sqlx::query(
+        r#"
+        INSERT INTO attested_devices (device_id, platform, attestation_status, integrity_verdict)
+        VALUES ($1, $2, 'verified', $3)
+        ON CONFLICT (device_id) DO UPDATE SET
+            last_verified_at = NOW(),
+            integrity_verdict = $3
+        "#,
+    )
+    .bind(&payload.device_id)
+    .bind(&payload.platform)
+    .bind(verdict)
+    .execute(&state.pool)
+    .await?;
+
+    let username = format!("attested_{}_{}", &payload.platform, &payload.device_id[0..payload.device_id.len().min(12)]);
+
+    let user = sqlx::query_as::<_, User>(
+        r#"
+        INSERT INTO users (username, password_hash, reputation_score)
+        VALUES ($1, 'hardware_attested_device', 1.8)
+        ON CONFLICT (username) DO UPDATE SET reputation_score = users.reputation_score
+        RETURNING id, username, password_hash, reputation_score, is_node_admin, created_at
+        "#,
+    )
+    .bind(&username)
+    .fetch_one(&state.pool)
+    .await?;
+
+    let token = generate_token(
+        user.id,
+        &user.username,
+        user.is_node_admin,
+        &state.config.jwt_secret,
+        state.config.jwt_expiration_hours,
+    )?;
+
+    Ok(Json(AuthResponse {
+        token,
+        user_id: user.id,
+        username: user.username,
+        reputation_score: user.reputation_score,
+    }))
+}
+

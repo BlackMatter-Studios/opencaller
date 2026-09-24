@@ -59,3 +59,21 @@ pub struct AnonymousAttestationRequest {
     pub pow_nonce: u64,
     pub client_platform: String, // "android" or "ios"
 }
+
+#[derive(Debug, Deserialize)]
+pub struct TelegramConfirmRequest {
+    pub session_id: Option<String>,
+    pub telegram_user_id: i64,
+    pub telegram_username: Option<String>,
+    pub phone_number: String,
+    pub first_name: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HardwareAttestRequest {
+    pub platform: String, // "android" or "ios"
+    pub device_id: String, // Android package / iOS Key ID
+    pub attestation_payload: String, // Play Integrity token or App Attest CBOR/Receipt
+    pub client_nonce: String,
+}
+

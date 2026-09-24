@@ -17,6 +17,13 @@ services:
     networks:
       - default
 
+  whatsapp-bridge:
+    ports:
+      - "127.0.0.1:8766:8766"
+    networks:
+      - default
+      - polaris_default
+
 networks:
   default:
     driver: bridge

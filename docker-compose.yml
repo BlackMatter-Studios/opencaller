@@ -84,6 +84,36 @@ services:
         limits:
           memory: 48M
 
+  whatsapp-bridge:
+    build:
+      context: ./services/whatsapp-bridge
+      dockerfile: Dockerfile
+    container_name: opencaller-whatsapp-bridge
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8766
+      DATABASE_URL: postgres://opencaller:${POSTGRES_PASSWORD:-opencaller_secure_password}@postgres:5432/opencaller
+      WHATSAPP_ENCRYPTION_KEY: ${WHATSAPP_ENCRYPTION_KEY:-opencaller_whatsapp_encryption_key_32bytes_sample}
+      BRIDGE_AUTH_TOKEN: ${WHATSAPP_BRIDGE_TOKEN:-opencaller_baileys_secret_token}
+      PAIR_TOKEN: ${WHATSAPP_PAIR_TOKEN:-opencaller_baileys_pair_token}
+      AUTH_DIR: /data/auth
+      MB_PY_WEBHOOK_URL: http://api:8080/api/v1/auth/whatsapp/inbound
+      MB_PY_WEBHOOK_SECRET: ${WHATSAPP_BRIDGE_SECRET:-opencaller_webhook_shared_secret}
+    volumes:
+      - whatsapp_auth:/data/auth
+    ports:
+      - "127.0.0.1:${WHATSAPP_PORT:-8766}:8766"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
 volumes:
   pgdata:
     driver: local
+  whatsapp_auth:
+    driver: local
+
