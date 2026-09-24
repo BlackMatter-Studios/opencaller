@@ -96,13 +96,98 @@ Inspired by the design system of `portal-master`, OpenCaller features deep space
   > Apple requires phone numbers in Call Directory extensions to be **strictly sequential `Int64` numbers in ASCENDING numerical order**. Any unsorted item triggers a silent iOS rejection. OpenCaller guarantees numerical ordering both in the backend SQL query and in the Swift iterator.
 * **iOS 16+ Siri App Intent**: Call on-demand lookups hands-free ("Hey Siri, search in OpenCaller") or map it to the **iPhone 15/16 Action Button** while on an incoming call.
 
-### 3. Privacy-First Community Phonebook
-* **Consent-Driven**: Sharing contacts to the community directory is **strictly disabled by default**.
-* **3-Vote Quorum Consensus**: A crowdsourced caller name is only promoted to the global index once **3 or more independent contributors** submit matching names.
-* **Privacy Filters**: Toggle to exclude favorite/starred family contacts and strip all personal notes, emails, and physical addresses on-device.
+### 3. Hybrid Community Phonebook & Graduated Confidence
+Truecaller built its database by aggressively harvesting users' full address books without transparent consent. OpenCaller inverts this model: **voluntary participation, on-device sanitization, and graduated confidence.**
+
+#### 🏷️ Graduated Confidence Levels
+Instead of hiding names until a high threshold is reached, OpenCaller employs a multi-tiered confidence rating so the database remains helpful from day one without sacrificing accuracy:
+
+| Tier | Contributor Count | UI Display Label | Badge | Confidence |
+| :--- | :---: | :--- | :---: | :---: |
+| **Community Hint** | 1 Contributor | *"Podría ser: [Nombre]"* | `[COMMUNITY HINT]` | 30% |
+| **Probable Match** | 2 Contributors | *"Probable: [Nombre]"* | `[PROBABLE CALLER]` | 60% |
+| **Community Verified** | 3+ Contributors | *"[Nombre Oficial]"* | `[COMMUNITY VERIFIED]` | 90% |
+| **Official Directory** | Official Registry | *"[Empresa Verificada]"* | `[VERIFIED BUSINESS]` | 100% |
+
+#### 🛡️ Multilingual Profanity & Defamation Shield
+To prevent trolls or malicious actors from publishing defamatory or abusive names when only 1 contributor has submitted a name, all crowdsourced suggestions pass through an automated **Multilingual Content Filter**:
+* Scans against open-source blocklists in Spanish, English, Portuguese, and common regional slang.
+* Blocks insults, sensitive personal phrases, sexual content, and harassment patterns before the string is stored in PostgreSQL.
+* Rejects suspicious patterns (e.g. personal notes like *"No contestar debe plata"*, *"Mi ex"*, *"Amor"*).
+
+#### 🔤 Fuzzy String & Phonetic Matching Engine
+Users often save the same business under slightly different names (e.g., *"Hamburguesas Dooguies"*, *"Restaurante Dugis"*, *"Dugis Burgers"*). OpenCaller unifies these into a single consensus entry using a 3-stage matching pipeline:
+
+```mermaid
+flowchart LR
+    Raw["Raw Input\n'Restaurante Dugis'"] --> Norm["1. Normalization\nLowercase, strip 'Restaurante/S.A./Bar'"]
+    Norm --> Phonetic["2. Phonetic Hashing\nDouble Metaphone -> 'TKS'"]
+    Norm --> Fuzzy["3. String Distance\nJaro-Winkler & Token Sort Ratio (> 0.75)"]
+    Phonetic & Fuzzy --> Cluster["Consensus Cluster\nUnified with 'Hamburguesas Dooguies'"]
+```
+
+1. **Token Normalization**: Strips business stop words (*"Restaurante"*, *"Hamburguesas"*, *"Bar"*, *"Taller"*, *"S.A."*, *"Ltda"*), removes diacritics/accents, and trims whitespace.
+2. **Jaro-Winkler & Levenshtein Similarity**: Calculates string distance ratio (> 0.75 similarity threshold).
+3. **Double Metaphone / Spanish Phonetics**: Maps words that sound identical (*"Dooguies"* ≈ *"Dugis"* -> phonetic code `TKS`).
+4. **Cluster Vote Aggregation**: Suggestions within the same cluster pool their votes together, automatically promoting the cleanest, most complete name.
+
+#### 🚀 Transparent First-Launch Onboarding
+On first launch, OpenCaller greets the user with an interactive privacy manifesto dialog. Users choose their privacy tier upfront:
+* **Tier 0 — Offline Shield Only**: Pure offline CallKit / CallScreening defense. Zero network lookups, 100% anonymous.
+* **Tier 1 — Online Reputation**: Access to live cloud lookups and community spam alerts.
+* **Tier 2 — Hybrid Contributor**: Voluntarily share non-favorite business contacts to strengthen the open-source directory. Family and starred contacts are strictly excluded on-device.
 
 ### 4. Right to be Forgotten (Self-Service Delisting)
 Anyone can permanently remove their number from OpenCaller's global index via the in-app tool or via direct REST API call. Delisted numbers are immediately purged and permanently blacklisted from re-ingestion.
+
+---
+
+## 🔑 Anti-Abuse Account Verification Architecture
+
+A common dilemma in open-source Caller ID platforms is **account verification**. Commercial giants use SMS OTP via Twilio or Vonage ($0.05 – $0.15 per SMS), which quickly leads to bankruptcy for free and self-hosted projects.
+
+OpenCaller introduces a **Zero-Cost, Multi-Channel Verification Stack** where the user can choose how they wish to verify:
+
+```mermaid
+graph TD
+    A["New OpenCaller User"] --> B{"Choose Verification Method"}
+    
+    B -->|"Option 1: Telegram Bot ($0)"| C["@OpenCallerVerifyBot\nCryptographically Signed Contact Share"]
+    B -->|"Option 2: WhatsApp Baileys ($0)"| D["Self-Hosted Baileys Gateway\nDirect OTP Message via WhatsApp"]
+    B -->|"Option 3: Self-Hosted Android Gateway ($0)"| E["Local Android Phone with SIM Card\nAutomated Flash Call or Free SMS"]
+    B -->|"Option 4: Anonymous ($0)"| F["Play Integrity / Apple App Attest\n+ Proof-of-Work mCaptcha"]
+    
+    C --> G["Verified Phone Account (Reputation: 1.0x)"]
+    D --> G
+    E --> G
+    F --> H["Anonymous Account (Reputation: 0.3x)"]
+    
+    G --> I["Eligible for Community Contact Contribution & Consensus"]
+    H --> J["Offline Defense, Cloud Lookups & Local Spam Reports"]
+```
+
+### 1. Option A: Telegram Bot Verification (`@OpenCallerVerifyBot`)
+* **Cost**: **$0.00**.
+* **Mechanism**: The mobile app triggers a deep link to Telegram's official bot. The user taps the native *"Share My Phone Number"* button. Telegram verifies the SIM ownership and passes a cryptographically signed HMAC token back to OpenCaller's API.
+* **Benefits**: 100% immune to VoIP/temporary numbers, instant, and completely free.
+
+### 2. Option B: WhatsApp Gateway (Self-Hosted Baileys Node)
+* **Cost**: **$0.00**.
+* **Mechanism**: OpenCaller includes a containerized **Baileys (Web WhatsApp)** service running alongside Polaris. When a user requests verification, the bot sends an automated 6-digit OTP code directly to their WhatsApp chat.
+* **Benefits**: Universal availability across Latin America, Europe, and Asia without paid SMS gateways.
+
+### 3. Option C: Self-Hosted Android Gateway (Flash Call & Local SMS)
+* **Cost**: **$0.00** (using a local unlimited SMS plan).
+* **Mechanism**: Connect any spare Android smartphone running Termux or an open-source SMS gateway app to your local network. 
+  * **Flash Call (Zero-Ring Verification)**: The gateway phone dials the user's phone for 2 seconds. The OpenCaller app on Android intercepts the incoming call via `ROLE_CALL_SCREENING`, verifies the caller ID digits as the secret token, and rejects the call before it rings.
+  * **Local SMS**: The gateway sends standard SMS messages using the phone's native SIM plan.
+
+### 4. Option D: Anonymous / Device Attestation (No Phone Number Needed)
+* **Cost**: **$0.00**.
+* **Mechanism**: For users who prefer complete anonymity and do not wish to associate any phone number:
+  * **Hardware Attestation**: Evaluates Google **Play Integrity API** on Android or Apple **App Attest** on iOS to verify the client is running on a genuine physical device (defeating virtual bot farms).
+  * **Proof-of-Work (PoW)**: A lightweight client-side mathematical challenge (500ms) prevents automated Sybil spamming.
+  * Anonymous accounts can query numbers and submit spam reports, but require phone verification to contribute names to the community phonebook.
 
 ---
 
