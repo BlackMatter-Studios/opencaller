@@ -31,3 +31,31 @@ pub struct AuthResponse {
     pub username: String,
     pub reputation_score: f32,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct RequestOtpRequest {
+    pub channel: String, // "telegram", "whatsapp", "android_gateway"
+    pub phone_number: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RequestOtpResponse {
+    pub session_id: String,
+    pub channel: String,
+    pub instructions: String,
+    pub deep_link: Option<String>,
+    pub expires_in_seconds: u32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct VerifyOtpRequest {
+    pub session_id: String,
+    pub code: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AnonymousAttestationRequest {
+    pub device_fingerprint: String,
+    pub pow_nonce: u64,
+    pub client_platform: String, // "android" or "ios"
+}

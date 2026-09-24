@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/glass_colors.dart';
 import 'features/home_shell.dart';
+import 'features/onboarding/onboarding_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: OpenCallerApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
+
+  runApp(ProviderScope(
+    child: OpenCallerApp(hasCompletedOnboarding: hasCompletedOnboarding),
+  ));
 }
 
 class OpenCallerApp extends StatelessWidget {
-  const OpenCallerApp({super.key});
+  final bool? hasCompletedOnboarding;
+  const OpenCallerApp({super.key, this.hasCompletedOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +34,7 @@ class OpenCallerApp extends StatelessWidget {
         ),
         fontFamily: 'Roboto',
       ),
-      home: const HomeShell(),
+      home: (hasCompletedOnboarding == true) ? const HomeShell() : const OnboardingScreen(),
     );
   }
 }

@@ -17,10 +17,13 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         // Health Check
         .route("/health", get(health_check))
-        // Authentication
+        // Authentication & Multi-Channel Verification
         .route("/v1/auth/register", post(auth::register))
         .route("/v1/auth/login", post(auth::login))
         .route("/v1/auth/me", get(auth::me))
+        .route("/v1/auth/verify/request-otp", post(auth::request_otp))
+        .route("/v1/auth/verify/confirm-otp", post(auth::verify_otp))
+        .route("/v1/auth/verify/attestation-pow", post(auth::verify_anonymous_attestation))
         // Caller ID & Reputation
         .route("/v1/lookup/{number}", get(lookup::lookup_number))
         .route("/v1/report", post(report::submit_report))

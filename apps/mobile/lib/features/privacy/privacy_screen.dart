@@ -5,6 +5,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/glass_colors.dart';
 import '../../core/theme/neon_glow_button.dart';
 import '../../core/theme/platform_glass_surface.dart';
+import '../onboarding/onboarding_screen.dart';
 
 class PrivacyScreen extends ConsumerStatefulWidget {
   const PrivacyScreen({super.key});
@@ -150,6 +151,46 @@ class _PrivacyScreenState extends ConsumerState<PrivacyScreen> {
                   Text(
                     'OpenCaller is self-hosted, 100% open source, and federated. Your activity is never tracked, aggregated, or sold. You maintain complete control over your telephony data.',
                     style: AppTypography.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            PlatformGlassSurface(
+              padding: const EdgeInsets.all(16),
+              borderRadius: BorderRadius.circular(20),
+              borderColor: GlassColors.cyberBlue.withValues(alpha: 0.4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: GlassColors.cyberBlue.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.explore_rounded, color: GlassColors.cyberBlue, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Asistente de Soberanía & Verificación', style: AppTypography.titleMedium.copyWith(fontSize: 14)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Revisa el manifiesto, cambia tu nivel de privacidad o verifica tu cuenta.',
+                          style: AppTypography.bodyMedium.copyWith(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios_rounded, color: GlassColors.cyberBlue, size: 16),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                      );
+                    },
                   ),
                 ],
               ),

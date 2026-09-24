@@ -100,4 +100,54 @@ class ApiClient {
     });
     return response.data as Map<String, dynamic>;
   }
+
+  // --- Multi-Channel Zero-Cost Verification ---
+
+  Future<Map<String, dynamic>> requestOtp({
+    required String channel,
+    String? phoneNumber,
+  }) async {
+    final response = await dio.post('/v1/auth/verify/request-otp', data: {
+      'channel': channel,
+      'phone_number': phoneNumber,
+    });
+    return response.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> verifyOtp({
+    required String sessionId,
+    required String code,
+  }) async {
+    final response = await dio.post('/v1/auth/verify/confirm-otp', data: {
+      'session_id': sessionId,
+      'code': code,
+    });
+    final data = response.data as Map<String, dynamic>;
+    if (data['token'] != null) {
+      await secureStorage.write(key: 'auth_token', value: data['token'] as String);
+    }
+    return data;
+  }
+
+  Future<Map<String, dynamic>> verifyAnonymousAttestation({
+    required String deviceFingerprint,
+    required int powNonce,
+    String clientPlatform = 'android',
+  }) async {
+    final response = await dio.post('/v1/auth/verify/attestation-pow', data: {
+      'device_fingerprint': deviceFingerprint,
+      'pow_nonce': powNonce,
+      'client_platform': clientPlatform,
+    });
+    final data = response.data as Map<String, dynamic>;
+    if (data['token'] != null) {
+      await secureStorage.write(key: 'auth_token', value: data['token'] as String);
+    }
+    return data;
+  }
+
+  Future<bool> hasValidAuth() async {
+    final token = await secureStorage.read(key: 'auth_token');
+    return token != null && token.isNotEmpty;
+  }
 }

@@ -233,7 +233,8 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
   Widget _buildResultCard(Map<String, dynamic> data) {
     final e164 = data['e164_number'] as int;
     final ccode = data['country_code'] as String? ?? 'XX';
-    final name = data['caller_name'] as String?;
+    final rawName = data['caller_name'] as String?;
+    final nameConfidence = (data['name_confidence'] as num?)?.toDouble() ?? 0.0;
     final spamScore = (data['spam_score'] as num?)?.toDouble() ?? 0.0;
     final isSpam = (data['is_spam'] as bool?) ?? false;
     final isPrivate = (data['is_private'] as bool?) ?? false;
@@ -244,6 +245,47 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
     final Color statusColor = isSpam
         ? GlassColors.severeScam
         : (spamScore >= 0.40 ? GlassColors.warningSpam : GlassColors.cleanVerified);
+
+    // Graduated confidence calculation
+    String displayName;
+    String confidenceBadgeText;
+    Color confidenceColor;
+    IconData confidenceIcon;
+    String? confidenceNote;
+
+    if (isPrivate) {
+      displayName = 'Private / Delisted Number';
+      confidenceBadgeText = 'PROTECTED';
+      confidenceColor = GlassColors.textMuted;
+      confidenceIcon = Icons.lock_outline_rounded;
+      confidenceNote = 'Este número ejerció su derecho a ser olvidado.';
+    } else if (rawName != null && rawName.isNotEmpty) {
+      if (nameConfidence < 0.50) {
+        displayName = 'Podría ser: $rawName';
+        confidenceBadgeText = 'HINT COMUNITARIO (1 SUGERENCIA)';
+        confidenceColor = const Color(0xFFFBBF24); // Amber
+        confidenceIcon = Icons.help_outline_rounded;
+        confidenceNote = 'Sugerido por 1 colaborador comunitario. Usar con precaución.';
+      } else if (nameConfidence < 0.80) {
+        displayName = 'Probable: $rawName';
+        confidenceBadgeText = 'IDENTIFICADOR PROBABLE';
+        confidenceColor = GlassColors.neonCyan;
+        confidenceIcon = Icons.flaky_outlined;
+        confidenceNote = 'Confirmado por 2 usuarios independientes.';
+      } else {
+        displayName = rawName;
+        confidenceBadgeText = isVerified ? 'NEGOCIO VERIFICADO' : 'CONSENSO VERIFICADO';
+        confidenceColor = GlassColors.cleanVerified;
+        confidenceIcon = Icons.verified_user_outlined;
+        confidenceNote = 'Consenso comunitario de 3+ colaboradores alcanzado.';
+      }
+    } else {
+      displayName = 'Número No Identificado';
+      confidenceBadgeText = 'SIN REGISTRO';
+      confidenceColor = GlassColors.textMuted;
+      confidenceIcon = Icons.help_outline_rounded;
+      confidenceNote = null;
+    }
 
     return PlatformGlassSurface(
       padding: const EdgeInsets.all(22),
@@ -266,13 +308,13 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      isSpam ? Icons.warning_amber_rounded : Icons.verified_user_outlined,
+                      isSpam ? Icons.warning_amber_rounded : Icons.shield_outlined,
                       size: 14,
                       color: statusColor,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isSpam ? 'SPAM / BLOCKED' : (isVerified ? 'VERIFIED BUSINESS' : 'CLEAN CALLER'),
+                      isSpam ? 'SPAM / BLOQUEADO' : (isVerified ? 'VERIFIED BUSINESS' : 'LIMPIO'),
                       style: AppTypography.badgeText.copyWith(color: statusColor),
                     ),
                   ],
@@ -286,11 +328,57 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
           ),
           const SizedBox(height: 18),
           Text(
-            isPrivate ? 'Private / Delisted Number' : (name ?? 'Unidentified Caller'),
-            style: AppTypography.displayLarge.copyWith(fontSize: 24),
+            displayName,
+            style: AppTypography.displayLarge.copyWith(
+              fontSize: 22,
+              color: isSpam ? Colors.white70 : Colors.white,
+            ),
           ),
           const SizedBox(height: 6),
           Text('+$e164 ($ccode)', style: AppTypography.monoNumber.copyWith(fontSize: 18)),
+          const SizedBox(height: 12),
+          // Graduated confidence badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: confidenceColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: confidenceColor.withValues(alpha: 0.5)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(confidenceIcon, size: 14, color: confidenceColor),
+                const SizedBox(width: 6),
+                Text(
+                  confidenceBadgeText,
+                  style: TextStyle(
+                    color: confidenceColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                if (rawName != null && nameConfidence > 0) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    '${(nameConfidence * 100).toInt()}% conf.',
+                    style: TextStyle(
+                      color: confidenceColor.withValues(alpha: 0.8),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (confidenceNote != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              confidenceNote,
+              style: TextStyle(color: confidenceColor.withValues(alpha: 0.7), fontSize: 12),
+            ),
+          ],
           const SizedBox(height: 14),
           Row(
             children: [

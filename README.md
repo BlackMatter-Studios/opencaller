@@ -243,6 +243,9 @@ All endpoints return JSON and are optimized for edge caching using `ETag` and `I
 | `GET` | `/health` | Service health status and version |
 | `POST` | `/v1/auth/register` | Create user account with Argon2id hashing |
 | `POST` | `/v1/auth/login` | Authenticate user and receive Ed25519/HMAC JWT |
+| `POST` | `/v1/auth/verify/request-otp` | Request multi-channel OTP (WhatsApp, Telegram, Android Gateway) |
+| `POST` | `/v1/auth/verify/confirm-otp` | Validate 6-digit OTP and activate verified phone account |
+| `POST` | `/v1/auth/verify/attestation-pow` | Zero-phone anonymous attestation using client PoW & hardware trust |
 | `GET` | `/v1/lookup/{number}` | Live caller ID, spam score, and business badge |
 | `POST` | `/v1/report` | Submit community spam report (Bayesian updater) |
 | `GET` | `/v1/sync/delta` | Delta synchronization stream (strictly ascending `Int64` with ETag) |

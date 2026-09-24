@@ -62,13 +62,33 @@ pub async fn lookup_number(
     match record {
         Some(num) => {
             let is_spam = num.spam_score >= state.config.spam_block_threshold;
-            let display_name = if num.is_private { None } else { num.caller_name };
+            let mut display_name = if num.is_private { None } else { num.caller_name };
+            let mut confidence = num.name_confidence;
+
+            // If caller_name is not yet set in numbers table, check suggestions for community hints
+            if display_name.is_none() && !num.is_private {
+                let suggestion = sqlx::query_as::<_, (String, i32)>(
+                    "SELECT suggested_name, votes_count FROM number_name_suggestions WHERE e164_number = $1 ORDER BY votes_count DESC LIMIT 1"
+                )
+                .bind(e164)
+                .fetch_optional(&state.pool)
+                .await?;
+
+                if let Some((sug_name, votes)) = suggestion {
+                    display_name = Some(sug_name);
+                    confidence = match votes {
+                        1 => 0.35,
+                        2 => 0.65,
+                        _ => 0.90,
+                    };
+                }
+            }
 
             Ok(Json(LookupResponse {
                 e164_number: num.e164_number,
                 country_code: num.country_code,
                 caller_name: display_name,
-                name_confidence: num.name_confidence,
+                name_confidence: confidence,
                 is_verified_business: num.is_verified_business,
                 spam_score: num.spam_score,
                 report_count: num.report_count,
@@ -79,12 +99,31 @@ pub async fn lookup_number(
             }))
         }
         None => {
-            // Not yet in database: return clean neutral response
+            // Not yet in master numbers table: check if any community suggestions exist
+            let suggestion = sqlx::query_as::<_, (String, i32)>(
+                "SELECT suggested_name, votes_count FROM number_name_suggestions WHERE e164_number = $1 ORDER BY votes_count DESC LIMIT 1"
+            )
+            .bind(e164)
+            .fetch_optional(&state.pool)
+            .await?;
+
+            let (display_name, confidence) = match suggestion {
+                Some((name, votes)) => {
+                    let conf = match votes {
+                        1 => 0.35,
+                        2 => 0.65,
+                        _ => 0.90,
+                    };
+                    (Some(name), conf)
+                }
+                None => (None, 0.0),
+            };
+
             Ok(Json(LookupResponse {
                 e164_number: e164,
                 country_code: "UNKNOWN".to_string(),
-                caller_name: None,
-                name_confidence: 0.0,
+                caller_name: display_name,
+                name_confidence: confidence,
                 is_verified_business: false,
                 spam_score: 0.0,
                 report_count: 0,
