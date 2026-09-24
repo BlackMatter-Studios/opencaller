@@ -16,12 +16,14 @@ class CallHistoryScreen extends ConsumerStatefulWidget {
 
 class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
   bool _isSyncing = false;
+  int _refreshKey = 0;
 
   Future<void> _triggerSync() async {
     setState(() => _isSyncing = true);
     try {
       final syncService = ref.read(syncServiceProvider);
-      final count = await syncService.performDeltaSync(countryCode: 'CR');
+      int count = await syncService.performDeltaSync(countryCode: 'CR');
+      count += await syncService.performDeltaSync(countryCode: 'US');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sync complete! Updated $count phone numbers.')),
@@ -34,7 +36,12 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isSyncing = false);
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+          _refreshKey++;
+        });
+      }
     }
   }
 
@@ -63,6 +70,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
         ],
       ),
       body: FutureBuilder<List<CallLog>>(
+        key: ValueKey(_refreshKey),
         future: db.getRecentCalls(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {

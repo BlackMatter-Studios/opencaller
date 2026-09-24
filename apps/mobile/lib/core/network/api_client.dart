@@ -61,7 +61,7 @@ class ApiClient {
       'limit': limit,
     };
     if (since != null) {
-      queryParams['since'] = since.toIso8601String();
+      queryParams['since'] = since.toUtc().toIso8601String();
     }
 
     final headers = <String, dynamic>{};

@@ -53,6 +53,9 @@ class AppDatabase extends _$AppDatabase {
   Future<List<CallLog>> getRecentCalls({int limit = 50}) =>
       (select(callLogs)..orderBy([(tbl) => OrderingTerm.desc(tbl.timestamp)])..limit(limit)).get();
 
+  Stream<List<CallLog>> watchRecentCalls({int limit = 50}) =>
+      (select(callLogs)..orderBy([(tbl) => OrderingTerm.desc(tbl.timestamp)])..limit(limit)).watch();
+
   Future<int> addCallLog(CallLogsCompanion entry) =>
       into(callLogs).insert(entry);
 }

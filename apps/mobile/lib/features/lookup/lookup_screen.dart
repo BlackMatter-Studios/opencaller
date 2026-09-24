@@ -35,9 +35,10 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
       setState(() {
         _lookupResult = result;
       });
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('Lookup error: $e\n$stack');
       setState(() {
-        _errorMessage = 'Lookup failed. Make sure number includes country code.';
+        _errorMessage = 'Lookup failed: $e';
       });
     } finally {
       setState(() {

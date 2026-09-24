@@ -71,7 +71,7 @@ class SyncService {
       if (newEtag != null) {
         await prefs.setString('etag_$countryCode', newEtag);
       }
-      await prefs.setString('last_sync_$countryCode', DateTime.now().toIso8601String());
+      await prefs.setString('last_sync_$countryCode', DateTime.now().toUtc().toIso8601String());
 
       // On iOS: Reload CallKit Extension
       await TelephonyPlatform.reloadCallDirectoryExtension();
