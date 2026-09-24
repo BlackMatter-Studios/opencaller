@@ -24,6 +24,11 @@ services:
       - default
       - polaris_default
 
+  telegram-bot:
+    networks:
+      - default
+      - polaris_default
+
 networks:
   default:
     driver: bridge

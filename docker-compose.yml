@@ -111,6 +111,23 @@ services:
         limits:
           memory: 128M
 
+  telegram-bot:
+    build:
+      context: ./services/telegram-bot
+      dockerfile: Dockerfile
+    container_name: opencaller-telegram-bot
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-OpenCallerVerifyBot}
+      OPENCALLER_API_URL: http://api:8080
+    deploy:
+      resources:
+        limits:
+          memory: 48M
+
 volumes:
   pgdata:
     driver: local
