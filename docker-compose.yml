@@ -1,0 +1,89 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: opencaller-postgres
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    environment:
+      POSTGRES_USER: opencaller
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opencaller_secure_password}
+      POSTGRES_DB: opencaller
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./services/migrations:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5439}:5432"
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=16MB
+      -c max_connections=60
+      -c checkpoint_completion_target=0.9
+      -c effective_cache_size=256MB
+      -c synchronous_commit=off
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opencaller -d opencaller"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+      network: host
+    container_name: opencaller-api
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      HOST: 0.0.0.0
+      DATABASE_URL: postgres://opencaller:${POSTGRES_PASSWORD:-opencaller_secure_password}@postgres:5432/opencaller
+      JWT_SECRET: ${JWT_SECRET:-insecure_default_secret_please_set_in_production_env}
+      MIN_CONSENSUS_REPORTS: ${MIN_CONSENSUS_REPORTS:-3}
+      SPAM_BLOCK_THRESHOLD: ${SPAM_BLOCK_THRESHOLD:-0.80}
+      RUST_LOG: ${RUST_LOG:-info,opencaller_api=debug}
+    ports:
+      - "127.0.0.1:${API_PORT:-8085}:8080"
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
+  crawler:
+    build:
+      context: ./services/crawler
+      dockerfile: Dockerfile
+      network: host
+    container_name: opencaller-crawler
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://opencaller:${POSTGRES_PASSWORD:-opencaller_secure_password}@postgres:5432/opencaller
+      CRAWLER_INTERVAL_SECS: ${CRAWLER_INTERVAL_SECS:-3600}
+      RUST_LOG: ${RUST_LOG:-info,opencaller_crawler=debug}
+    deploy:
+      resources:
+        limits:
+          memory: 48M
+
+volumes:
+  pgdata:
+    driver: local

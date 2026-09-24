@@ -1,0 +1,48 @@
+# Environment variables and secrets
+.env
+*.env.local
+*.pem
+*.key
+
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# Flutter & Dart artifacts
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+apps/mobile/.dart_tool/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.packages
+apps/mobile/build/
+apps/mobile/lib/generated/
+apps/mobile/lib/**/*.g.dart
+*.log
+
+# Mobile OS generated
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+apps/mobile/android/app/build/
+apps/mobile/ios/Pods/
+apps/mobile/ios/.symlinks/
+apps/mobile/ios/Flutter/Flutter.framework/
+apps/mobile/ios/Flutter/Flutter.podspec
+apps/mobile/ios/Podfile.lock
+
+# Databases & local data
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+pgdata/
+
+# IDE & OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

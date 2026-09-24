@@ -1,0 +1,24 @@
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5439:5432"
+    networks:
+      - default
+      - polaris_default
+
+  api:
+    ports:
+      - "127.0.0.1:8085:8080"
+    networks:
+      - default
+      - polaris_default
+
+  crawler:
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
+  polaris_default:
+    external: true
