@@ -6,6 +6,7 @@ import '../../core/providers.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/glass_colors.dart';
 import '../../core/theme/platform_glass_surface.dart';
+import '../../l10n/app_localizations.dart';
 
 class CallHistoryScreen extends ConsumerStatefulWidget {
   const CallHistoryScreen({super.key});
@@ -25,14 +26,16 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
       int count = await syncService.performDeltaSync(countryCode: 'CR');
       count += await syncService.performDeltaSync(countryCode: 'US');
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync complete! Updated $count phone numbers.')),
+          SnackBar(content: Text(l10n?.syncCompleted(count) ?? 'Sync complete! Updated $count phone numbers.')),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sync failed: $e')),
+          SnackBar(content: Text(l10n?.syncFailed(e.toString()) ?? 'Sync failed: $e')),
         );
       }
     } finally {
@@ -48,13 +51,14 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final db = ref.watch(databaseProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: GlassColors.deepSpace,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Call Activity & Defense', style: AppTypography.headlineMedium),
+        title: Text(l10n?.historyTitle ?? 'Call Activity & Defense', style: AppTypography.headlineMedium),
         actions: [
           IconButton(
             icon: _isSyncing
@@ -65,7 +69,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
                   )
                 : const Icon(Icons.sync_rounded, color: GlassColors.neonCyan),
             onPressed: _isSyncing ? null : _triggerSync,
-            tooltip: 'Sync Local Spam Database',
+            tooltip: l10n?.syncTooltip ?? 'Sync Local Spam Database',
           ),
         ],
       ),
@@ -81,7 +85,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
 
           final calls = snapshot.data!;
           if (calls.isEmpty) {
-            return _buildEmptyState();
+            return _buildEmptyState(l10n);
           }
 
           return ListView.separated(
@@ -118,7 +122,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            log.callerName ?? 'Unknown Caller',
+                            log.callerName ?? (l10n?.unknownCaller ?? 'Unknown Caller'),
                             style: AppTypography.titleMedium,
                           ),
                           const SizedBox(height: 4),
@@ -145,7 +149,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'BLOCKED',
+                              l10n?.statusBlocked ?? 'BLOCKED',
                               style: AppTypography.badgeText.copyWith(color: GlassColors.severeScam),
                             ),
                           ),
@@ -161,7 +165,7 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppLocalizations? l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -170,10 +174,10 @@ class _CallHistoryScreenState extends ConsumerState<CallHistoryScreen> {
           children: [
             Icon(Icons.shield_outlined, size: 64, color: GlassColors.neonCyan.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
-            Text('No Calls Recorded Yet', style: AppTypography.headlineMedium),
+            Text(l10n?.emptyHistoryTitle ?? 'No Calls Recorded Yet', style: AppTypography.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Incoming calls will be screened automatically by OpenCaller. Spam callers will be silenced or rejected before your phone rings.',
+              l10n?.emptyHistorySubtitle ?? 'Incoming calls will be screened automatically by OpenCaller. Spam callers will be silenced or rejected before your phone rings.',
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium,
             ),

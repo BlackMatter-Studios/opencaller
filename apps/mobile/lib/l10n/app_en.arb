@@ -1,0 +1,249 @@
+{
+  "@@locale": "en",
+  "appName": "OpenCaller",
+  "appSubtitle": "The 100% Free, Private & Community Caller ID",
+  "statusOnline": "ONLINE",
+  "statusOffline": "OFFLINE MODE",
+  "statusSyncing": "SYNCING",
+  "close": "Close",
+  "cancel": "Cancel",
+  "save": "Save",
+  "confirm": "Confirm",
+  "continueButton": "Continue",
+  "error": "Error",
+  "success": "Success",
+
+  "navHistory": "History",
+  "navLookup": "Lookup",
+  "navShield": "Shield",
+  "navPrivacy": "Privacy",
+
+  "historyTitle": "Call Activity",
+  "filterAll": "All",
+  "filterSpam": "Spam",
+  "filterBlocked": "Blocked",
+  "filterUnknown": "Unknown",
+  "emptyHistoryTitle": "No calls recorded",
+  "emptyHistorySubtitle": "Your incoming and screened calls will appear here in real-time.",
+  "incomingCall": "Incoming Call",
+  "outgoingCall": "Outgoing Call",
+  "missedCall": "Missed Call",
+  "blockedCall": "Blocked Automatically",
+  "blockNumber": "Block Number",
+  "reportSpam": "Report Spam",
+
+  "lookupTitle": "Reverse Phone Lookup",
+  "searchHint": "Search E.164 phone number...",
+  "searchButton": "Search",
+  "searching": "Searching...",
+  "couldBeHint": "Could be: {name}",
+  "@couldBeHint": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "probableMatch": "Probable: {name}",
+  "@probableMatch": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "verifiedBusiness": "Verified Business",
+  "communityVerified": "Community Consensus",
+  "badgeCommunityHint": "COMMUNITY HINT (1 SUGGESTION) 35% conf.",
+  "badgeProbableMatch": "PROBABLE CALLER 65% conf.",
+  "badgeConsensusVerified": "COMMUNITY CONSENSUS 90% conf.",
+  "badgeVerifiedBusiness": "VERIFIED BUSINESS 100% conf.",
+  "spamSevere": "SEVERE SPAM DETECTED",
+  "spamSuspicious": "SUSPICIOUS NUMBER",
+  "spamClean": "CLEAN NUMBER",
+  "spamScore": "Spam Score: {score}%",
+  "@spamScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+  "reportsCount": "{count} reports",
+  "@reportsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "reportSheetTitle": "Report Number: {number}",
+  "@reportSheetTitle": {
+    "placeholders": {
+      "number": { "type": "String" }
+    }
+  },
+  "reportReason": "Reason / Category",
+  "categoryScam": "Fraud / Extortion",
+  "categoryTelemarketing": "Telemarketing / Sales",
+  "categoryDebtCollector": "Aggressive Debt Collector",
+  "categoryRobocall": "Automated Robocall",
+  "submitReport": "Submit Report",
+  "reportSubmitted": "Report registered successfully. Thank you for protecting the community!",
+
+  "shieldTitle": "Telephony Defense Shield",
+  "protectionActive": "Real-Time Protection Active",
+  "protectionInactive": "Protection Disabled",
+  "screeningRole": "Native Call Screening",
+  "screeningRoleGranted": "Android CallScreening role granted",
+  "screeningRoleNeeded": "Tap to activate native call interception",
+  "grantRoleButton": "Grant Native Permission",
+  "spamThreshold": "Auto-Block Threshold",
+  "spamThresholdDesc": "Calls with a spam score equal to or higher than {threshold}% will be silenced and auto-rejected without ringing.",
+  "@spamThresholdDesc": {
+    "placeholders": {
+      "threshold": { "type": "int" }
+    }
+  },
+  "localDatabase": "Local Offline Database",
+  "localNumbersCount": "{count} known numbers stored on-device",
+  "@localNumbersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "syncButton": "Sync Now",
+  "syncInProgress": "Syncing delta updates with federated node...",
+  "syncSuccess": "Database synchronized successfully!",
+
+  "privacyTitle": "Sovereignty & Privacy Center",
+  "privacyManifesto": "Zero Tracking Guarantee",
+  "privacyManifestoDesc": "OpenCaller never sells, monetizes, or brokers your contacts or call logs. Your data remains on your device or self-hosted server.",
+  "sovereigntyTierTitle": "Current Sovereignty Tier",
+  "tier0Name": "Tier 0 — Pure Offline Shield",
+  "tier0Desc": "No network calls. Local SQLite query in <10ms.",
+  "tier1Name": "Tier 1 — Cloud Reputation",
+  "tier1Desc": "Queries federated community database for unknown numbers.",
+  "tier2Name": "Tier 2 — Hybrid Contributor",
+  "tier2Desc": "Voluntarily contributes non-favorite contacts to the open directory.",
+  "changeTier": "Change Sovereignty Tier",
+  "reopenOnboarding": "Revisit Onboarding Setup",
+  "reopenOnboardingDesc": "Walk through the configuration wizard again at any time.",
+  "reopenOnboardingButton": "Launch Wizard",
+  "languageTitle": "Application Language",
+  "languageSystem": "System Default",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "languagePortuguese": "Português",
+  "delistTitle": "Right to be Forgotten (Delist)",
+  "delistDesc": "Permanently erase your number from OpenCaller's global database and blacklist it from re-ingestion.",
+  "delistNumberHint": "E.164 Number to remove...",
+  "delistReasonHint": "Reason (e.g. Owner requested removal)",
+  "delistButton": "Request Permanent Delisting",
+  "delistSuccess": "Number successfully delisted and purged.",
+
+  "onboardingWelcomeTitle": "OpenCaller",
+  "onboardingWelcomeSubtitle": "The 100% Free, Private & Community Caller ID",
+  "onboardingFeature1Title": "Instant Local Detection (<10ms)",
+  "onboardingFeature1Desc": "Your device checks a local SQLite database before the phone rings. Zero latency and zero cloud queries for known numbers.",
+  "onboardingFeature2Title": "Zero Commercial Tracking",
+  "onboardingFeature2Desc": "No Facebook SDKs or Google Ads trackers. Your call logs and contacts are never sold. 100% open source under the MIT License.",
+  "onboardingFeature3Title": "Federated Community Power",
+  "onboardingFeature3Desc": "A decentralized network where users collaborate and verify numbers with graduated democratic consensus.",
+  "onboardingStartButton": "Start Configuration",
+  "onboardingTierHeader": "Choose Your Privacy Tier",
+  "onboardingTierNotice": "You can change this at any time in Settings. We will never share your contacts without your explicit consent.",
+  "onboardingVerifyHeader": "Account Verification",
+  "onboardingVerifyDesc": "OpenCaller is 100% community-driven and free. To prevent bots and malicious spoofing, verify your account at zero cost using your preferred method:",
+  "onboardingVerifyOptionTelegram": "Telegram Bot (@OpenCallerVerifyBot)",
+  "onboardingVerifyOptionTelegramDesc": "Instant SIM-backed contact share. 100% free and VoIP-proof.",
+  "onboardingVerifyOptionWhatsApp": "WhatsApp (Self-Hosted Baileys)",
+  "onboardingVerifyOptionWhatsAppDesc": "Receive a 6-digit OTP code directly to your WhatsApp.",
+  "onboardingVerifyOptionAndroid": "Self-Hosted Android Gateway",
+  "onboardingVerifyOptionAndroidDesc": "Zero-ring flash call or local SMS from a private Android node.",
+  "onboardingVerifyOptionPoW": "Anonymous Proof-of-Work (No Phone #)",
+  "onboardingVerifyOptionPoWDesc": "Hardware device attestation + cryptographic challenge. Complete anonymity.",
+  "onboardingPhoneNumber": "Phone Number (E.164)",
+  "onboardingSendCode": "Send Code",
+  "onboardingEnterCode": "Enter 6-digit OTP",
+  "onboardingVerifyCode": "Verify Code",
+  "onboardingRunPoW": "Compute Anonymous Challenge",
+  "onboardingVerifiedStatus": "Verified: {label}",
+  "@onboardingVerifiedStatus": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "onboardingTelephonyHeader": "Native Call Protection",
+  "onboardingTelephonyDesc": "To intercept and block fraud calls before your phone vibrates or rings, OpenCaller needs the Android CallScreening role.",
+  "onboardingGrantRole": "Enable Call Defense",
+  "onboardingSkip": "Skip for Now",
+  "onboardingReadyHeader": "You're All Set!",
+  "onboardingReadyDesc": "OpenCaller is configured and ready to defend your incoming calls with full privacy sovereignty.",
+  "onboardingEnterApp": "Enter OpenCaller",
+
+  "crowdsourcingControls": "COMMUNITY CROWDSOURCING CONTROLS",
+  "shareContactsTitle": "Share Contacts to Community Directory",
+  "shareContactsDesc": "Help identify local businesses and service drivers. Strict 3-vote consensus required before publication.",
+  "excludeStarredTitle": "Exclude Starred / Family Contacts",
+  "excludeStarredDesc": "Personal friends and favorites are never transmitted under any circumstances.",
+  "stripMetadataTitle": "Strip Private Metadata",
+  "stripMetadataDesc": "Emails, addresses, birthdays, and relationship notes stay strictly on-device.",
+  "consentModalTitle": "Crowdsourcing Privacy Agreement",
+  "consentModalDesc": "• Strict Consensus: A name is only made visible once 3 or more independent users suggest it.\n• Zero Personal Data: Emails, photos, and physical addresses are NEVER accessed or transmitted.\n• Right to Opt-Out: Anyone can delist their number at any time.",
+  "consentModalAgree": "I Understand & Consent",
+  "consentModalFeedback": "Community sharing enabled with privacy safeguards.",
+
+  "shieldHeaderTitle": "Native Call Shield",
+  "shieldHeaderDesc": "OpenCaller runs locally to screen incoming calls with zero latency and zero data leakage.",
+  "shieldAndroidRoleTitle": "Android Call Screening Role",
+  "shieldStatusActive": "ACTIVE",
+  "shieldStatusActionRequired": "ACTION REQUIRED",
+  "shieldStatusPending": "PENDING",
+  "shieldAndroidRoleDesc": "Android requires granting the Call Screening role to allow OpenCaller to query the local SQLite database synchronously (<150ms) and silence or block spam calls before your phone rings.",
+  "shieldSetRoleButton": "Set as Call Screening App",
+  "shieldActiveOnDevice": "Real-time screening active on this device",
+  "shieldIOSRoleTitle": "iOS Call Directory Extension",
+  "shieldIOSEnabled": "ENABLED",
+  "shieldIOSSetupNeeded": "SETUP NEEDED",
+  "shieldIOSDesc": "On iOS, OpenCaller loads pre-sorted spam and community numbers into the iOS telephony database via CallKit. Apple requires toggling this extension once in System Settings.",
+  "shieldIOSInstructions": "Instructions:\n1. Tap \"Open iPhone Settings\" below.\n2. Go to Phone > Call Blocking & Identification.\n3. Turn ON \"OpenCaller\".",
+  "shieldIOSOpenSettings": "Open iPhone Settings",
+  "shieldIOSRefresh": "Refresh Status / Reload Extension",
+  "shieldDeviceRequirement": "Telephony screening requires a physical Android or iOS device.",
+
+  "unidentifiedCaller": "Unidentified Caller",
+  "noRecords": "NO RECORDS",
+  "protectedDelisted": "PROTECTED",
+  "privateDelistedNumber": "Private / Delisted Number",
+  "delistedNote": "This number exercised its right to be forgotten.",
+  "communityHintNote": "Suggested by 1 community contributor. Use with caution.",
+  "probableMatchNote": "Confirmed by 2 independent contributors.",
+  "consensusVerifiedNote": "Community consensus of 3+ contributors reached.",
+  "metricCategory": "Category",
+  "metricReports": "Reports",
+  "statusCleanBadge": "CLEAN",
+  "statusBlocked": "BLOCKED",
+  "unknownCaller": "Unknown Caller",
+  "syncCompleted": "Sync complete! Updated {count} phone numbers.",
+  "@syncCompleted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "syncFailed": "Sync failed: {error}",
+  "@syncFailed": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "syncTooltip": "Sync Local Spam Database",
+  "cryptoChallengeTitle": "Local Cryptographic Verification",
+  "cryptoChallengeDesc": "No phone number required. Solves a fast SHA-256 Proof-of-Work challenge (~50ms) on your device to prove you are a genuine human client.",
+  "generateAnonymousCredential": "Generate Anonymous Credential",
+  "enterPhoneNumber": "Enter Your Phone Number",
+  "requestOtpButton": "Request OTP Code",
+  "otpSixDigits": "6-Digit OTP Code:",
+  "verifyCodeButton": "Verify Code",
+  "nextStepButton": "Next Step",
+  "androidCallScreeningServiceDesc": "Enables Android CallScreeningService to intercept incoming calls in real-time with zero latency.",
+  "callScreeningActive": "Filter active and ready on this device",
+  "summaryTierLabel": "Privacy Tier",
+  "summaryShieldLabel": "Shield Status",
+  "summaryVerifyLabel": "Verification",
+  "summaryConfigurable": "Configurable in Settings",
+  "summaryGuestMode": "Guest Mode",
+  "summaryVerified": "Verified"
+}

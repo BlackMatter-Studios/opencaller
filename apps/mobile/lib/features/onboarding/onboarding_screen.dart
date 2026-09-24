@@ -11,6 +11,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/glass_colors.dart';
 import '../../core/theme/neon_glow_button.dart';
 import '../../core/theme/platform_glass_surface.dart';
+import '../../l10n/app_localizations.dart';
 import '../home_shell.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -219,6 +220,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: GlassColors.deepSpace,
       body: SafeArea(
@@ -263,7 +266,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   TextButton(
                     onPressed: _finishOnboarding,
                     child: Text(
-                      _currentPage == 4 ? '' : 'Omitir',
+                      _currentPage == 4 ? '' : (l10n?.onboardingSkip ?? 'Omitir'),
                       style: const TextStyle(color: GlassColors.textMuted),
                     ),
                   ),
@@ -277,11 +280,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 physics: const BouncingScrollPhysics(),
                 onPageChanged: (page) => setState(() => _currentPage = page),
                 children: [
-                  _buildSlide1Manifesto(),
-                  _buildSlide2SovereigntyTiers(),
-                  _buildSlide3Verification(),
-                  _buildSlide4TelephonyRole(),
-                  _buildSlide5Ready(),
+                  _buildSlide1Manifesto(l10n),
+                  _buildSlide2SovereigntyTiers(l10n),
+                  _buildSlide3Verification(l10n),
+                  _buildSlide4TelephonyRole(l10n),
+                  _buildSlide5Ready(l10n),
                 ],
               ),
             ),
@@ -292,7 +295,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   // --- SLIDE 1: MANIFESTO ---
-  Widget _buildSlide1Manifesto() {
+  Widget _buildSlide1Manifesto(AppLocalizations? l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -311,36 +314,36 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'OpenCaller',
+            l10n?.onboardingWelcomeTitle ?? 'OpenCaller',
             style: AppTypography.displayLarge.copyWith(fontSize: 34, letterSpacing: -0.5),
           ),
           const SizedBox(height: 8),
           Text(
-            'El Identificador de Llamadas 100% Libre, Privado y Comunitario',
+            l10n?.onboardingWelcomeSubtitle ?? 'El Identificador de Llamadas 100% Libre, Privado y Comunitario',
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium.copyWith(fontSize: 15, color: GlassColors.neonCyan),
           ),
           const SizedBox(height: 28),
           _buildFeatureTile(
             Icons.speed_rounded,
-            'Detección Local Instantánea (<10ms)',
-            'Tu dispositivo consulta una base de datos local SQLite antes de que suene el teléfono. Cero latencia y cero llamadas a la nube para números conocidos.',
+            l10n?.onboardingFeature1Title ?? 'Detección Local Instantánea (<10ms)',
+            l10n?.onboardingFeature1Desc ?? 'Tu dispositivo consulta una base de datos local SQLite antes de que suene el teléfono. Cero latencia y cero llamadas a la nube para números conocidos.',
           ),
           const SizedBox(height: 16),
           _buildFeatureTile(
             Icons.visibility_off_rounded,
-            'Cero Rastreo Comercial',
-            'Sin SDKs de Facebook ni Google Ads. Tu historial y libreta jamás se venden. 100% código abierto bajo licencia MIT.',
+            l10n?.onboardingFeature2Title ?? 'Cero Rastreo Comercial',
+            l10n?.onboardingFeature2Desc ?? 'Sin SDKs de Facebook ni Google Ads. Tu historial y libreta jamás se venden. 100% código abierto bajo licencia MIT.',
           ),
           const SizedBox(height: 16),
           _buildFeatureTile(
             Icons.hub_rounded,
-            'Poder Comunitario Federado',
-            'Una red descentralizada donde los usuarios colaboran y verifican números con consenso democrático y gradual.',
+            l10n?.onboardingFeature3Title ?? 'Poder Comunitario Federado',
+            l10n?.onboardingFeature3Desc ?? 'Una red descentralizada donde los usuarios colaboran y verifican números con consenso democrático y gradual.',
           ),
           const SizedBox(height: 32),
           NeonGlowButton(
-            text: 'Comenzar Configuración',
+            text: l10n?.onboardingStartButton ?? 'Comenzar Configuración',
             glowColor: GlassColors.neonCyan,
             onPressed: _nextPage,
           ),
@@ -350,24 +353,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   // --- SLIDE 2: SOVEREIGNTY TIERS ---
-  Widget _buildSlide2SovereigntyTiers() {
+  Widget _buildSlide2SovereigntyTiers(AppLocalizations? l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Nivel de Privacidad', style: AppTypography.headlineMedium),
+          Text(l10n?.onboardingTierHeader ?? 'Nivel de Privacidad', style: AppTypography.headlineMedium),
           const SizedBox(height: 6),
           Text(
-            'Elige cómo interactúa OpenCaller con la red. Control total en tus manos:',
+            l10n?.onboardingTierNotice ?? 'Elige cómo interactúa OpenCaller con la red. Control total en tus manos:',
             style: AppTypography.bodyMedium,
           ),
           const SizedBox(height: 20),
           _buildTierCard(
             tierIndex: 0,
             icon: Icons.wifi_off_rounded,
-            title: 'Nivel 0: Escudo 100% Offline',
-            subtitle: 'Máxima anonimidad. Cero llamadas de red salientes. La app solo bloquea usando la base descargada localmente.',
+            title: l10n?.tier0Name ?? 'Nivel 0: Escudo 100% Offline',
+            subtitle: l10n?.tier0Desc ?? 'Máxima anonimidad. Cero llamadas de red salientes. La app solo bloquea usando la base descargada localmente.',
             badge: 'AIR-GAPPED',
             color: Colors.white70,
           ),
@@ -375,8 +378,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildTierCard(
             tierIndex: 1,
             icon: Icons.cloud_done_rounded,
-            title: 'Nivel 1: Inteligencia de Red',
-            subtitle: 'Recomendado. Consulta en tiempo real números desconocidos y recibe alertas de fraude sin compartir tus contactos.',
+            title: l10n?.tier1Name ?? 'Nivel 1: Inteligencia de Red',
+            subtitle: l10n?.tier1Desc ?? 'Recomendado. Consulta en tiempo real números desconocidos y recibe alertas de fraude sin compartir tus contactos.',
             badge: 'RECOMENDADO',
             color: GlassColors.neonCyan,
           ),
@@ -384,14 +387,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildTierCard(
             tierIndex: 2,
             icon: Icons.people_alt_rounded,
-            title: 'Nivel 2: Colaborador Híbrido',
-            subtitle: 'Aporta nombres de comercios y servicios. Se excluyen automáticamente contactos favoritos, notas y datos personales.',
+            title: l10n?.tier2Name ?? 'Nivel 2: Colaborador Híbrido',
+            subtitle: l10n?.tier2Desc ?? 'Aporta nombres de comercios y servicios. Se excluyen automáticamente contactos favoritos, notas y datos personales.',
             badge: 'COMUNITARIO',
             color: const Color(0xFF10B981),
           ),
           const SizedBox(height: 28),
           NeonGlowButton(
-            text: 'Confirmar y Continuar',
+            text: l10n?.continueButton ?? 'Confirmar y Continuar',
             glowColor: GlassColors.neonCyan,
             onPressed: _nextPage,
           ),
@@ -401,16 +404,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   // --- SLIDE 3: MULTI-CHANNEL VERIFICATION ---
-  Widget _buildSlide3Verification() {
+  Widget _buildSlide3Verification(AppLocalizations? l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Verificación Anti-Abuso', style: AppTypography.headlineMedium),
+          Text(l10n?.onboardingVerifyHeader ?? 'Verificación Anti-Abuso', style: AppTypography.headlineMedium),
           const SizedBox(height: 6),
           Text(
-            'Para proteger a la comunidad de bots sin costosos SMS corporativos, elije tu método:',
+            l10n?.onboardingVerifyDesc ?? 'Para proteger a la comunidad de bots sin costosos SMS corporativos, elije tu método:',
             style: AppTypography.bodyMedium,
           ),
           const SizedBox(height: 20),
@@ -428,7 +431,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Dispositivo Verificado', style: AppTypography.titleMedium.copyWith(color: GlassColors.cleanVerified)),
+                        Text(
+                          l10n?.onboardingVerifiedStatus(_verifiedBadgeLabel ?? 'OK') ?? 'Dispositivo Verificado',
+                          style: AppTypography.titleMedium.copyWith(color: GlassColors.cleanVerified),
+                        ),
                         const SizedBox(height: 2),
                         Text(_verifiedBadgeLabel ?? 'Autenticado correctamente', style: AppTypography.bodyMedium),
                       ],
@@ -491,15 +497,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Verificación Criptográfica Local', style: AppTypography.titleMedium),
+                    Text(l10n?.cryptoChallengeTitle ?? 'Local Cryptographic Verification', style: AppTypography.titleMedium),
                     const SizedBox(height: 6),
                     Text(
-                      'No requiere número de teléfono. Resuelve un Proof-of-Work SHA-256 en ~50ms en tu teléfono para probar que eres un dispositivo real y no un bot.',
+                      l10n?.cryptoChallengeDesc ?? 'No phone number required. Solves a fast SHA-256 Proof-of-Work challenge (~50ms) on your device to prove you are a genuine human client.',
                       style: AppTypography.bodyMedium,
                     ),
                     const SizedBox(height: 16),
                     NeonGlowButton(
-                      text: 'Generar Credencial Anónima',
+                      text: l10n?.generateAnonymousCredential ?? 'Generate Anonymous Credential',
                       glowColor: GlassColors.neonCyan,
                       isLoading: _isVerifyingOtp,
                       onPressed: _handleAnonymousPoW,
@@ -514,14 +520,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Ingresa tu Número Telefónico', style: AppTypography.titleMedium),
+                    Text(l10n?.enterPhoneNumber ?? 'Enter Your Phone Number', style: AppTypography.titleMedium),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: '+506 8888 8888',
+                        hintText: l10n?.delistNumberHint ?? '+506 8888 8888',
                         hintStyle: const TextStyle(color: GlassColors.textMuted),
                         filled: true,
                         fillColor: GlassColors.glassFill,
@@ -533,14 +539,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                     const SizedBox(height: 12),
                     NeonGlowButton(
-                      text: 'Solicitar Código OTP',
+                      text: l10n?.requestOtpButton ?? 'Request OTP Code',
                       glowColor: GlassColors.cyberBlue,
                       isLoading: _isRequestingOtp,
                       onPressed: _handleRequestOtp,
                     ),
                     if (_sessionId != null) ...[
                       const SizedBox(height: 16),
-                      Text('Código de 6 Dígitos:', style: AppTypography.titleMedium),
+                      Text(l10n?.otpSixDigits ?? '6-Digit OTP Code:', style: AppTypography.titleMedium),
                       const SizedBox(height: 8),
                       TextField(
                         controller: _otpController,
@@ -559,7 +565,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                       const SizedBox(height: 12),
                       NeonGlowButton(
-                        text: 'Verificar Código',
+                        text: l10n?.verifyCodeButton ?? 'Verify Code',
                         glowColor: GlassColors.cleanVerified,
                         isLoading: _isVerifyingOtp,
                         onPressed: _handleVerifyOtp,
@@ -571,7 +577,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ],
           const SizedBox(height: 28),
           NeonGlowButton(
-            text: 'Siguiente Paso',
+            text: l10n?.nextStepButton ?? (l10n?.continueButton ?? 'Next Step'),
             glowColor: GlassColors.neonCyan,
             onPressed: _nextPage,
           ),
@@ -581,7 +587,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   // --- SLIDE 4: TELEPHONY ROLE ---
-  Widget _buildSlide4TelephonyRole() {
+  Widget _buildSlide4TelephonyRole(AppLocalizations? l10n) {
     final isAndroid = !kIsWeb && Platform.isAndroid;
     final isIOS = !kIsWeb && Platform.isIOS;
 
@@ -590,10 +596,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Blindaje Telefónico Nativo', style: AppTypography.headlineMedium),
+          Text(l10n?.onboardingTelephonyHeader ?? 'Blindaje Telefónico Nativo', style: AppTypography.headlineMedium),
           const SizedBox(height: 6),
           Text(
-            'Para silenciar o bloquear estafas antes de que tu teléfono empiece a timbrar:',
+            l10n?.onboardingTelephonyDesc ?? 'Para silenciar o bloquear estafas antes de que tu teléfono empiece a timbrar:',
             style: AppTypography.bodyMedium,
           ),
           const SizedBox(height: 24),
@@ -608,7 +614,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Rol de Detección de Llamadas', style: AppTypography.titleMedium),
+                      Text(l10n?.screeningRole ?? 'Rol de Detección de Llamadas', style: AppTypography.titleMedium),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -616,7 +622,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          _isScreeningEnabled ? 'ACTIVO' : 'PENDIENTE',
+                          _isScreeningEnabled 
+                              ? (l10n?.shieldStatusActive ?? 'ACTIVE') 
+                              : (l10n?.shieldStatusPending ?? 'PENDING'),
                           style: TextStyle(
                             color: _isScreeningEnabled ? GlassColors.cleanVerified : GlassColors.warningSpam,
                             fontWeight: FontWeight.bold,
@@ -628,13 +636,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Permite que el servicio Android CallScreeningService intercepte llamadas entrantes en tiempo real con cero latencia.',
+                    l10n?.androidCallScreeningServiceDesc ?? 'Permite que el servicio Android CallScreeningService intercepte llamadas entrantes en tiempo real con cero latencia.',
                     style: AppTypography.bodyMedium,
                   ),
                   const SizedBox(height: 18),
                   if (!_isScreeningEnabled)
                     NeonGlowButton(
-                      text: 'Activar Permiso de Detección',
+                      text: l10n?.onboardingGrantRole ?? 'Activar Permiso de Detección',
                       glowColor: GlassColors.neonCyan,
                       onPressed: _requestAndroidRole,
                     )
@@ -643,7 +651,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       children: [
                         const Icon(Icons.check_circle_rounded, color: GlassColors.cleanVerified),
                         const SizedBox(width: 8),
-                        Text('Filtro activo y listo en este dispositivo', style: TextStyle(color: GlassColors.cleanVerified)),
+                        Text(l10n?.callScreeningActive ?? (l10n?.screeningRoleGranted ?? 'Filtro activo y listo en este dispositivo'), style: const TextStyle(color: GlassColors.cleanVerified)),
                       ],
                     ),
                 ],
@@ -657,17 +665,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Extensión CallKit de iOS', style: AppTypography.titleMedium),
+                  Text(l10n?.shieldIOSRoleTitle ?? 'Extensión CallKit de iOS', style: AppTypography.titleMedium),
                   const SizedBox(height: 8),
-                  const Text(
-                    '1. Abre Ajustes de iPhone.\n'
-                    '2. Ve a Teléfono > Bloqueo e ID de llamadas.\n'
-                    '3. Activa OpenCaller.',
-                    style: TextStyle(color: GlassColors.textSecondary, height: 1.4),
+                  Text(
+                    l10n?.shieldIOSInstructions ?? '1. Abre Ajustes de iPhone.\n2. Ve a Teléfono > Bloqueo e ID de llamadas.\n3. Activa OpenCaller.',
+                    style: const TextStyle(color: GlassColors.textSecondary, height: 1.4),
                   ),
                   const SizedBox(height: 16),
                   NeonGlowButton(
-                    text: 'Abrir Ajustes de iOS',
+                    text: l10n?.shieldIOSOpenSettings ?? 'Abrir Ajustes de iOS',
                     glowColor: GlassColors.cyberBlue,
                     onPressed: () => TelephonyPlatform.openSystemSettings(),
                   ),
@@ -676,7 +682,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           const SizedBox(height: 32),
           NeonGlowButton(
-            text: 'Continuar',
+            text: l10n?.continueButton ?? 'Continuar',
             glowColor: GlassColors.neonCyan,
             onPressed: _nextPage,
           ),
@@ -686,7 +692,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   // --- SLIDE 5: READY ---
-  Widget _buildSlide5Ready() {
+  Widget _buildSlide5Ready(AppLocalizations? l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -704,10 +710,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: const Icon(Icons.verified_rounded, size: 64, color: GlassColors.cleanVerified),
           ),
           const SizedBox(height: 24),
-          Text('¡Todo Configurado!', style: AppTypography.displayLarge.copyWith(fontSize: 30)),
+          Text(l10n?.onboardingReadyHeader ?? '¡Todo Configurado!', style: AppTypography.displayLarge.copyWith(fontSize: 30)),
           const SizedBox(height: 8),
           Text(
-            'Tu teléfono ahora está protegido con soberanía y privacidad.',
+            l10n?.onboardingReadyDesc ?? 'Tu teléfono ahora está protegido con soberanía y privacidad.',
             textAlign: TextAlign.center,
             style: AppTypography.bodyMedium,
           ),
@@ -718,27 +724,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Column(
               children: [
                 _buildSummaryRow(
-                  'Nivel de Privacidad',
+                  l10n?.summaryTierLabel ?? 'Nivel de Privacidad',
                   _sovereigntyTier == 0
-                      ? 'Nivel 0 (100% Offline)'
-                      : (_sovereigntyTier == 1 ? 'Nivel 1 (Nube)' : 'Nivel 2 (Comunitario)'),
+                      ? (l10n?.tier0Name ?? 'Nivel 0 (100% Offline)')
+                      : (_sovereigntyTier == 1 ? (l10n?.tier1Name ?? 'Nivel 1 (Nube)') : (l10n?.tier2Name ?? 'Nivel 2 (Comunitario)')),
                 ),
                 const Divider(color: GlassColors.glassBorder),
                 _buildSummaryRow(
-                  'Estado del Blindaje',
-                  _isScreeningEnabled ? 'Activo (Call Screening)' : 'Configurable en Ajustes',
+                  l10n?.summaryShieldLabel ?? 'Estado del Blindaje',
+                  _isScreeningEnabled 
+                      ? (l10n?.shieldActiveOnDevice ?? 'Activo (Call Screening)') 
+                      : (l10n?.summaryConfigurable ?? 'Configurable en Ajustes'),
                 ),
                 const Divider(color: GlassColors.glassBorder),
                 _buildSummaryRow(
-                  'Verificación',
-                  _isAccountVerified ? (_verifiedBadgeLabel ?? 'Verificado') : 'Modo Invitado',
+                  l10n?.summaryVerifyLabel ?? 'Verificación',
+                  _isAccountVerified ? (_verifiedBadgeLabel ?? (l10n?.summaryVerified ?? 'Verificado')) : (l10n?.summaryGuestMode ?? 'Modo Invitado'),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 36),
           NeonGlowButton(
-            text: 'Entrar a OpenCaller',
+            text: l10n?.onboardingEnterApp ?? 'Entrar a OpenCaller',
             glowColor: GlassColors.cleanVerified,
             onPressed: _finishOnboarding,
           ),
@@ -809,9 +817,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(title, style: AppTypography.titleMedium.copyWith(color: isSelected ? Colors.white : Colors.white70)),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTypography.titleMedium.copyWith(color: isSelected ? Colors.white : Colors.white70),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(

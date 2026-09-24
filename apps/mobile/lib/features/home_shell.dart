@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/glass_colors.dart';
 import '../core/theme/platform_glass_surface.dart';
+import '../l10n/app_localizations.dart';
 import 'history/call_history_screen.dart';
 import 'lookup/lookup_screen.dart';
 import 'onboarding/setup_wizard_screen.dart';
@@ -25,6 +26,8 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: GlassColors.deepSpace,
       body: IndexedStack(
@@ -40,10 +43,10 @@ class _HomeShellState extends State<HomeShell> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.search_rounded, 'Lookup'),
-                _buildNavItem(1, Icons.history_rounded, 'Activity'),
-                _buildNavItem(2, Icons.privacy_tip_outlined, 'Privacy'),
-                _buildNavItem(3, Icons.shield_outlined, 'Shield'),
+                _buildNavItem(0, Icons.search_rounded, l10n?.navLookup ?? 'Lookup'),
+                _buildNavItem(1, Icons.history_rounded, l10n?.navHistory ?? 'Activity'),
+                _buildNavItem(2, Icons.privacy_tip_outlined, l10n?.navPrivacy ?? 'Privacy'),
+                _buildNavItem(3, Icons.shield_outlined, l10n?.navShield ?? 'Shield'),
               ],
             ),
           ),

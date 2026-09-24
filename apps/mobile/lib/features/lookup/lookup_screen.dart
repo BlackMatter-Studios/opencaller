@@ -5,6 +5,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/glass_colors.dart';
 import '../../core/theme/neon_glow_button.dart';
 import '../../core/theme/platform_glass_surface.dart';
+import '../../l10n/app_localizations.dart';
 
 class LookupScreen extends ConsumerStatefulWidget {
   const LookupScreen({super.key});
@@ -48,6 +49,7 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
   }
 
   void _showReportDialog(int e164Number, String countryCode) {
+    final l10n = AppLocalizations.of(context);
     String selectedCategory = 'spam';
     final commentController = TextEditingController();
 
@@ -69,10 +71,10 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Report Number', style: AppTypography.headlineMedium),
+                    Text(l10n?.reportSheetTitle('+$e164Number') ?? 'Report Number', style: AppTypography.headlineMedium),
                     const SizedBox(height: 8),
                     Text(
-                      'Help protect the community. Your report updates the Bayesian reputation score.',
+                      l10n?.reportReason ?? 'Help protect the community. Your report updates the Bayesian reputation score.',
                       style: AppTypography.bodyMedium,
                     ),
                     const SizedBox(height: 16),
@@ -88,12 +90,12 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                           borderSide: const BorderSide(color: GlassColors.glassBorder),
                         ),
                       ),
-                      items: const [
-                        DropdownMenuItem(value: 'spam', child: Text('Telemarketing / Spam')),
-                        DropdownMenuItem(value: 'scam', child: Text('Scam / Financial Fraud')),
-                        DropdownMenuItem(value: 'robocall', child: Text('Automated Robocall')),
-                        DropdownMenuItem(value: 'harassment', child: Text('Harassment')),
-                        DropdownMenuItem(value: 'delivery', child: Text('Delivery / Legitimate')),
+                      items: [
+                        DropdownMenuItem(value: 'spam', child: Text(l10n?.categoryTelemarketing ?? 'Telemarketing / Spam')),
+                        DropdownMenuItem(value: 'scam', child: Text(l10n?.categoryScam ?? 'Scam / Financial Fraud')),
+                        DropdownMenuItem(value: 'robocall', child: Text(l10n?.categoryRobocall ?? 'Automated Robocall')),
+                        DropdownMenuItem(value: 'harassment', child: Text(l10n?.categoryDebtCollector ?? 'Harassment / Aggressive')),
+                        DropdownMenuItem(value: 'delivery', child: Text(l10n?.verifiedBusiness ?? 'Delivery / Legitimate')),
                       ],
                       onChanged: (val) {
                         if (val != null) setModalState(() => selectedCategory = val);
@@ -104,7 +106,7 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                       controller: commentController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Additional details (optional)',
+                        hintText: l10n?.reportReason ?? 'Additional details (optional)',
                         hintStyle: const TextStyle(color: GlassColors.textMuted),
                         filled: true,
                         fillColor: GlassColors.glassFill,
@@ -116,7 +118,7 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                     ),
                     const SizedBox(height: 20),
                     NeonGlowButton(
-                      text: 'Submit Community Report',
+                      text: l10n?.submitReport ?? 'Submit Community Report',
                       glowColor: GlassColors.severeScam,
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
@@ -129,12 +131,12 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                                 comment: commentController.text.trim(),
                               );
                           messenger.showSnackBar(
-                            const SnackBar(content: Text('Report submitted successfully!')),
+                            SnackBar(content: Text(l10n?.reportSubmitted ?? 'Report submitted successfully!')),
                           );
                           _performLookup();
                         } catch (e) {
                           messenger.showSnackBar(
-                            SnackBar(content: Text('Submission failed: $e')),
+                            SnackBar(content: Text('${l10n?.error ?? "Error"}: $e')),
                           );
                         }
                       },
@@ -151,6 +153,8 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: GlassColors.deepSpace,
       appBar: AppBar(
@@ -188,9 +192,9 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                       controller: _searchController,
                       keyboardType: TextInputType.phone,
                       style: AppTypography.titleMedium,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter phone number with country code...',
-                        hintStyle: TextStyle(color: GlassColors.textMuted),
+                      decoration: InputDecoration(
+                        hintText: l10n?.searchHint ?? 'Enter phone number with country code...',
+                        hintStyle: const TextStyle(color: GlassColors.textMuted),
                         border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _performLookup(),
@@ -221,16 +225,16 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                 ),
                 child: Text(_errorMessage!, style: const TextStyle(color: GlassColors.severeScam)),
               ),
-            if (_lookupResult != null) _buildResultCard(_lookupResult!),
+            if (_lookupResult != null) _buildResultCard(_lookupResult!, l10n),
             if (_lookupResult == null && !_isLoading && _errorMessage == null)
-              _buildPlaceholderState(),
+              _buildPlaceholderState(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResultCard(Map<String, dynamic> data) {
+  Widget _buildResultCard(Map<String, dynamic> data, AppLocalizations? l10n) {
     final e164 = data['e164_number'] as int;
     final ccode = data['country_code'] as String? ?? 'XX';
     final rawName = data['caller_name'] as String?;
@@ -254,34 +258,36 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
     String? confidenceNote;
 
     if (isPrivate) {
-      displayName = 'Private / Delisted Number';
-      confidenceBadgeText = 'PROTECTED';
+      displayName = l10n?.privateDelistedNumber ?? 'Private / Delisted Number';
+      confidenceBadgeText = l10n?.protectedDelisted ?? 'PROTECTED';
       confidenceColor = GlassColors.textMuted;
       confidenceIcon = Icons.lock_outline_rounded;
-      confidenceNote = 'Este número ejerció su derecho a ser olvidado.';
+      confidenceNote = l10n?.delistedNote ?? 'Este número ejerció su derecho a ser olvidado.';
     } else if (rawName != null && rawName.isNotEmpty) {
       if (nameConfidence < 0.50) {
-        displayName = 'Podría ser: $rawName';
-        confidenceBadgeText = 'HINT COMUNITARIO (1 SUGERENCIA)';
+        displayName = l10n?.couldBeHint(rawName) ?? 'Podría ser: $rawName';
+        confidenceBadgeText = l10n?.badgeCommunityHint ?? 'HINT COMUNITARIO (1 SUGERENCIA)';
         confidenceColor = const Color(0xFFFBBF24); // Amber
         confidenceIcon = Icons.help_outline_rounded;
-        confidenceNote = 'Sugerido por 1 colaborador comunitario. Usar con precaución.';
+        confidenceNote = l10n?.communityHintNote ?? 'Sugerido por 1 colaborador comunitario. Usar con precaución.';
       } else if (nameConfidence < 0.80) {
-        displayName = 'Probable: $rawName';
-        confidenceBadgeText = 'IDENTIFICADOR PROBABLE';
+        displayName = l10n?.probableMatch(rawName) ?? 'Probable: $rawName';
+        confidenceBadgeText = l10n?.badgeProbableMatch ?? 'IDENTIFICADOR PROBABLE';
         confidenceColor = GlassColors.neonCyan;
         confidenceIcon = Icons.flaky_outlined;
-        confidenceNote = 'Confirmado por 2 usuarios independientes.';
+        confidenceNote = l10n?.probableMatchNote ?? 'Confirmado por 2 usuarios independientes.';
       } else {
         displayName = rawName;
-        confidenceBadgeText = isVerified ? 'NEGOCIO VERIFICADO' : 'CONSENSO VERIFICADO';
+        confidenceBadgeText = isVerified 
+            ? (l10n?.badgeVerifiedBusiness ?? 'NEGOCIO VERIFICADO') 
+            : (l10n?.badgeConsensusVerified ?? 'CONSENSO VERIFICADO');
         confidenceColor = GlassColors.cleanVerified;
         confidenceIcon = Icons.verified_user_outlined;
-        confidenceNote = 'Consenso comunitario de 3+ colaboradores alcanzado.';
+        confidenceNote = l10n?.consensusVerifiedNote ?? 'Consenso comunitario de 3+ colaboradores alcanzado.';
       }
     } else {
-      displayName = 'Número No Identificado';
-      confidenceBadgeText = 'SIN REGISTRO';
+      displayName = l10n?.unidentifiedCaller ?? 'Número No Identificado';
+      confidenceBadgeText = l10n?.noRecords ?? 'SIN REGISTRO';
       confidenceColor = GlassColors.textMuted;
       confidenceIcon = Icons.help_outline_rounded;
       confidenceNote = null;
@@ -314,14 +320,16 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      isSpam ? 'SPAM / BLOQUEADO' : (isVerified ? 'VERIFIED BUSINESS' : 'LIMPIO'),
+                      isSpam
+                          ? (l10n?.spamSevere ?? 'SPAM / BLOQUEADO')
+                          : (isVerified ? (l10n?.badgeVerifiedBusiness ?? 'VERIFIED BUSINESS') : (l10n?.statusCleanBadge ?? 'LIMPIO')),
                       style: AppTypography.badgeText.copyWith(color: statusColor),
                     ),
                   ],
                 ),
               ),
               Text(
-                'Spam Score: ${(spamScore * 100).toInt()}%',
+                l10n?.spamScore((spamScore * 100).toInt()) ?? 'Spam Score: ${(spamScore * 100).toInt()}%',
                 style: TextStyle(color: statusColor, fontWeight: FontWeight.bold),
               ),
             ],
@@ -382,9 +390,9 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
           const SizedBox(height: 14),
           Row(
             children: [
-              _buildMetricChip(Icons.category_outlined, 'Category', category.toUpperCase()),
+              _buildMetricChip(Icons.category_outlined, l10n?.metricCategory ?? 'Category', category.toUpperCase()),
               const SizedBox(width: 12),
-              _buildMetricChip(Icons.report_outlined, 'Reports', '$reports reports'),
+              _buildMetricChip(Icons.report_outlined, l10n?.metricReports ?? 'Reports', l10n?.reportsCount(reports) ?? '$reports reports'),
             ],
           ),
           const SizedBox(height: 24),
@@ -392,7 +400,7 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
             children: [
               Expanded(
                 child: NeonGlowButton(
-                  text: 'Report Spam',
+                  text: l10n?.reportSpam ?? 'Report Spam',
                   glowColor: GlassColors.severeScam,
                   height: 46,
                   onPressed: () => _showReportDialog(e164, ccode),
@@ -424,16 +432,16 @@ class _LookupScreenState extends ConsumerState<LookupScreen> {
     );
   }
 
-  Widget _buildPlaceholderState() {
+  Widget _buildPlaceholderState(AppLocalizations? l10n) {
     return Column(
       children: [
         const SizedBox(height: 60),
         Icon(Icons.perm_phone_msg_outlined, size: 64, color: GlassColors.neonCyan.withValues(alpha: 0.5)),
         const SizedBox(height: 16),
-        Text('Look Up Any Number', style: AppTypography.headlineMedium),
+        Text(l10n?.lookupTitle ?? 'Look Up Any Number', style: AppTypography.headlineMedium),
         const SizedBox(height: 8),
         Text(
-          'Search global community records, verified business directories, and spam defense reports.',
+          l10n?.appSubtitle ?? 'Search global community records, verified business directories, and spam defense reports.',
           textAlign: TextAlign.center,
           style: AppTypography.bodyMedium,
         ),
